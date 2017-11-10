@@ -12,8 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameListener;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -52,6 +50,8 @@ public class dlgGraf extends JDialog {
 
         tbnPane.add("Histograma", panelHistograma());
         tbnPane.add("Poligono", panelPoligono());
+        tbnPane.add("Histograma AC", panelHistograma_ac());
+        tbnPane.add("Poligono AC", panelPoligono_ac());
 
         setLayout(new BorderLayout(5, 5));
         add(tbnPane, BorderLayout.CENTER);
@@ -74,6 +74,25 @@ public class dlgGraf extends JDialog {
         SimpleIntervalXYDataset dataset = new SimpleIntervalXYDataset(frecuencia);
         return dataset;
     }
+    
+    /// Frecuencia relativa acumulada
+      private JPanel panelHistograma_ac() {
+        JFreeChart jfreechart = crearHistograma_ac(crearDatosHistograma_ac());
+        ChartPanel panel = new ChartPanel(jfreechart);
+        return panel;
+    }
+
+    private JFreeChart crearHistograma_ac(IntervalXYDataset datos) {
+        JFreeChart jfreechart = ChartFactory.createXYBarChart("Histograma Frecuencia Relativa Acumulada", "X", false, "Y", datos, PlotOrientation.VERTICAL, false, false, false);
+        return jfreechart;
+    }
+
+    private IntervalXYDataset crearDatosHistograma_ac() {
+        SimpleIntervalXYDataset_ac dataset = new SimpleIntervalXYDataset_ac(frecuencia);
+        return dataset;
+    }
+    
+    
 
     private XYDataset crearDatosPoligono() {
         XYSeries poligono = new XYSeries("Poligono");
@@ -97,6 +116,32 @@ public class dlgGraf extends JDialog {
 
     private JFreeChart crearPoligono(XYDataset datosPoligono) {
         JFreeChart jfreechart = ChartFactory.createXYLineChart("Poligono de frecuecias", "X", "Y", datosPoligono, PlotOrientation.VERTICAL, false, false, false);
+        return jfreechart;
+    }
+    
+    // Poligono para frecuencia relativa acumulada
+    private XYDataset crearDatosPoligono_ac() {
+        XYSeries poligono = new XYSeries("Poligono AC");
+
+        Clase[] clase = frecuencia.getClases();
+        float[] rel = frecuencia.getFrecRelAc();
+        int k = frecuencia.getK();
+        for (int i = 0; i < clase.length; i++) {
+            poligono.add(clase[i].getMarca(), rel[i]);
+        }
+        XYSeriesCollection series = new XYSeriesCollection();
+        series.addSeries(poligono);
+        return series;
+    }
+
+    private JPanel panelPoligono_ac() {
+        JFreeChart jfreechart = crearPoligono_ac(crearDatosPoligono_ac());
+        ChartPanel chart = new ChartPanel(jfreechart);
+        return chart;
+    }
+
+    private JFreeChart crearPoligono_ac(XYDataset datosPoligono) {
+        JFreeChart jfreechart = ChartFactory.createXYLineChart("Poligono de Frecuecias Relativas Acumuladas", "X", "Y", datosPoligono, PlotOrientation.VERTICAL, false, false, false);
         return jfreechart;
     }
 }
